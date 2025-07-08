@@ -6,7 +6,7 @@ import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import InventoryAlert from '@/components/InventoryAlert';
 import { Pin } from '@/types/pin';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Unstable_Grid2';
 
 export default function PinDetailPage({ params }: { params: { id: string } }) {
   const [pin, setPin] = useState<Pin | null>(null);
