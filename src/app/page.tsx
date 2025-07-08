@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
-import { Container, Grid, TextField, Box, Typography } from '@mui/material';
+import { Container, TextField, Box, Typography } from '@mui/material';
 
 export default function Home() {
   const [pins, setPins] = useState<Pin[]>([]);
@@ -42,31 +42,31 @@ export default function Home() {
         <Typography variant="h4" component="h1" gutterBottom>
           Pin Collection
         </Typography>
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div>
             <TextField
               fullWidth
               label="Filter by country"
               value={countryFilter}
               onChange={(e) => setCountryFilter(e.target.value)}
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </div>
+          <div>
             <TextField
               fullWidth
               label="Filter by event"
               value={eventFilter}
               onChange={(e) => setEventFilter(e.target.value)}
             />
-          </Grid>
-        </Grid>
-        <Grid container spacing={4}>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {filteredPins.map((pin) => (
-            <Grid item xs={12} sm={6} md={4} key={pin.id}>
+            <div key={pin.id}>
               <PinCard pin={pin} />
-            </Grid>
+            </div>
           ))}
-        </Grid>
+        </div>
       </Box>
     </Container>
   );

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Pin } from '@/types/pin';
-import { TextField, Button, Grid, Slider, Typography, Box, Chip } from '@mui/material';
+import { TextField, Button, Slider, Typography, Box, Chip } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
 interface PinFormProps {
@@ -28,6 +28,8 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
     tradeableCount: pin?.tradeableCount || 0,
   });
   const [newCharacteristic, setNewCharacteristic] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,6 +57,44 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
     }));
   };
 
+  const handleAddImage = () => {
+    if (newImageUrl && !formData.photos.includes(newImageUrl)) {
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, newImageUrl]
+      }));
+      setNewImageUrl('');
+    }
+  };
+
+  const handleDeleteImage = (urlToDelete: string) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter(url => url !== urlToDelete)
+    }));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setImageUploadError('Only image files are allowed.');
+      return;
+    }
+    setImageUploadError(null);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      if (!formData.photos.includes(base64)) {
+        setFormData(prev => ({
+          ...prev,
+          photos: [...prev.photos, base64]
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const tradeableCount = Math.max(0, formData.totalCount - 1);
@@ -69,35 +109,35 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="col-span-1 md:col-span-2">
           <TextField name="name" label="Pin Name" value={formData.name} onChange={handleChange} fullWidth required />
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
           <TextField name="description" label="Description" value={formData.description} onChange={handleChange} fullWidth multiline rows={4} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="category" label="Category" value={formData.category} onChange={handleChange} fullWidth />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="locationFound" label="Location Found" value={formData.locationFound} onChange={handleChange} fullWidth />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="countryOfOrigin" label="Country of Origin" value={formData.countryOfOrigin} onChange={handleChange} fullWidth />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="eventOfOrigin" label="Event of Origin" value={formData.eventOfOrigin} onChange={handleChange} fullWidth />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="dateFound" label="Date Found" type="date" value={formData.dateFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="timeFound" label="Time Found" type="time" value={formData.timeFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <TextField name="totalCount" label="Total Quantity" type="number" value={formData.totalCount} onChange={handleChange} fullWidth required InputProps={{ inputProps: { min: 1 } }}/>
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
             <Typography gutterBottom>Value ({formData.value})</Typography>
             <Slider
                 value={formData.value}
@@ -109,8 +149,8 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
                 min={1}
                 max={10}
             />
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
             <Typography gutterBottom>Special Characteristics</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <TextField 
@@ -126,12 +166,54 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
                     <Chip key={char} label={char} onDelete={() => handleDeleteCharacteristic(char)} />
                 ))}
             </Box>
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="col-span-1 md:col-span-2">
+          <Typography gutterBottom>Images</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TextField
+              label="Image URL"
+              value={newImageUrl}
+              onChange={e => setNewImageUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAddImage()}
+              fullWidth
+            />
+            <Button onClick={handleAddImage}>Add</Button>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
+            <Button variant="outlined" component="label">
+              Upload Image
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleFileChange}
+              />
+            </Button>
+            {imageUploadError && (
+              <Typography color="error" variant="body2">{imageUploadError}</Typography>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
+            {formData.photos.map(url => (
+              <Box key={url} sx={{ position: 'relative', width: 100, height: 100 }}>
+                <img src={url} alt="Pin" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4 }} />
+                <Button
+                  size="small"
+                  color="error"
+                  onClick={() => handleDeleteImage(url)}
+                  sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '2px 6px', fontSize: 10 }}
+                >
+                  X
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        </div>
+        <div className="col-span-1 md:col-span-2 flex gap-4 mt-4">
           <Button type="submit" variant="contained" color="primary">{pin ? 'Update' : 'Create'} Pin</Button>
-          <Button variant="outlined" onClick={() => router.back()} style={{ marginLeft: '1rem' }}>Cancel</Button>
-        </Grid>
-      </Grid>
+          <Button variant="outlined" onClick={() => router.back()}>Cancel</Button>
+        </div>
+      </div>
     </form>
   );
 };

@@ -4,18 +4,20 @@ import React, { useState, useEffect } from 'react';
 import PinForm from '@/components/PinForm';
 import { Pin } from '@/types/pin';
 import { Container, Typography, CircularProgress, Box } from '@mui/material';
-import { useRouter, notFound } from 'next/navigation';
+import { useRouter, notFound, useParams } from 'next/navigation';
 
-export default function EditPinPage({ params }: { params: { id: string } }) {
+export default function EditPinPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
   const router = useRouter();
   const [pin, setPin] = useState<Pin | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params.id) {
+    if (id) {
       const fetchPin = async () => {
         try {
-          const response = await fetch(`/api/pins/${params.id}`);
+          const response = await fetch(`/api/pins/${id}`);
           if (!response.ok) {
             notFound();
             return;
@@ -31,7 +33,7 @@ export default function EditPinPage({ params }: { params: { id: string } }) {
       };
       fetchPin();
     }
-  }, [params.id]);
+  }, [id]);
 
   const handleSubmit = async (updatedPin: Pin) => {
     try {

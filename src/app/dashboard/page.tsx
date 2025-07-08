@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Grid, Box, CircularProgress } from '@mui/material';
+import { Container, Typography, Paper, Box, CircularProgress } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
@@ -51,16 +51,16 @@ export default function DashboardPage() {
       
       <Paper sx={{ padding: '2rem', marginBottom: '2rem' }}>
         <Typography variant="h6">Collection Summary</Typography>
-        <Grid container spacing={2} sx={{ marginTop: '1rem' }}>
-          <Grid item xs={6} md={3}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+          <div>
             <Typography variant="h5">{totalPins}</Typography>
             <Typography color="text.secondary">Total Pins</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
+          </div>
+          <div>
             <Typography variant="h5">{uniquePins}</Typography>
             <Typography color="text.secondary">Unique Pins</Typography>
-          </Grid>
-        </Grid>
+          </div>
+        </div>
       </Paper>
 
       <Paper sx={{ padding: '2rem', marginBottom: '2rem' }}>
@@ -81,13 +81,13 @@ export default function DashboardPage() {
       <Typography variant="h4" gutterBottom sx={{ marginTop: '2rem' }}>
         My Wishlist
       </Typography>
-      <Grid container spacing={3}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {wishlist.map(pin => (
-          <Grid item xs={12} sm={6} md={4} key={pin.id}>
+          <div key={pin.id}>
             <PinCard pin={pin} />
-          </Grid>
+          </div>
         ))}
-      </Grid>
+      </div>
     </Container>
   );
 }

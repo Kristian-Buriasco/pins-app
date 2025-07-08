@@ -2,22 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Paper, Chip, Box, Button, CircularProgress } from '@mui/material';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import InventoryAlert from '@/components/InventoryAlert';
 import { Pin } from '@/types/pin';
-import Grid from '@mui/material/Unstable_Grid2';
 
-export default function PinDetailPage({ params }: { params: { id: string } }) {
+export default function PinDetailPage() {
+  const params = useParams();
+  const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
   const [pin, setPin] = useState<Pin | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (params.id) {
+    if (id) {
       const fetchPin = async () => {
         try {
-          const response = await fetch(`/api/pins/${params.id}`);
+          const response = await fetch(`/api/pins/${id}`);
           if (!response.ok) {
             notFound();
             return;
@@ -33,12 +34,12 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
       };
       fetchPin();
     }
-  }, [params.id]);
+  }, [id]);
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this pin? This action cannot be undone.')) {
       try {
-        const response = await fetch(`/api/pins/${params.id}`, {
+        const response = await fetch(`/api/pins/${id}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -55,6 +56,45 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleTrade = async (type: 'trade' | 'receive') => {
+    if (!pin) return;
+    let newTotal = pin.totalCount;
+    let newTradeable = pin.tradeableCount;
+    if (type === 'trade' && pin.tradeableCount > 0) {
+      newTotal -= 1;
+      newTradeable -= 1;
+    } else if (type === 'receive') {
+      newTotal += 1;
+      newTradeable += 1;
+    } else {
+      return;
+    }
+    const transaction = {
+      date: new Date().toISOString(),
+      description: type === 'trade' ? 'Traded away a pin' : 'Received a pin',
+    };
+    const updatedPin = {
+      ...pin,
+      totalCount: newTotal,
+      tradeableCount: newTradeable,
+      transactionHistory: [...(pin.transactionHistory || []), transaction],
+    };
+    try {
+      const response = await fetch(`/api/pins/${pin.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPin),
+      });
+      if (response.ok) {
+        setPin(updatedPin);
+      } else {
+        alert('Failed to update pin after trade.');
+      }
+    } catch {
+      alert('Error updating pin.');
+    }
+  };
+
   if (loading) {
     return <Container><Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box></Container>;
   }
@@ -66,8 +106,8 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
   return (
     <Container>
       <Paper sx={{ padding: '2rem', marginTop: '2rem' }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
             <Box sx={{ position: 'relative', width: '100%', height: '400px' }}>
               <Image
                 src={pin.photos[0] || '/placeholder.png'}
@@ -77,9 +117,9 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
               />
             </Box>
             {pin.photos.length > 1 && (
-              <Grid container spacing={1} sx={{ marginTop: '1rem' }}>
+              <div className="grid grid-cols-4 gap-2 mt-4">
                 {pin.photos.map((photo, index) => (
-                  <Grid item key={index} xs={3}>
+                  <div key={index}>
                      <Box sx={{ position: 'relative', width: '100%', height: '80px' }}>
                         <Image
                             src={photo}
@@ -88,12 +128,12 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
                             style={{ objectFit: 'cover' }}
                         />
                      </Box>
-                  </Grid>
+                  </div>
                 ))}
-              </Grid>
+              </div>
             )}
-          </Grid>
-          <Grid item xs={12} md={6}>
+          </div>
+          <div>
             <Typography variant="h4" gutterBottom>{pin.name}</Typography>
             <Typography variant="subtitle1" color="text.secondary" gutterBottom>
               {pin.eventOfOrigin} - {pin.countryOfOrigin}
@@ -125,15 +165,41 @@ export default function PinDetailPage({ params }: { params: { id: string } }) {
 
             <Box sx={{ mt: 3 }}>
                 <Button variant="contained" color="primary" onClick={() => router.push(`/pins/${pin.id}/edit`)}>Edit Pin</Button>
-                <Button variant="contained" color="secondary" disabled={pin.tradeableCount === 0} sx={{ marginLeft: '1rem' }}>
-                    {pin.tradeableCount > 0 ? 'Offer for Trade' : 'Not Tradeable'}
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  disabled={pin.tradeableCount === 0}
+                  sx={{ marginLeft: '1rem' }}
+                  onClick={() => handleTrade('trade')}
+                >
+                  {pin.tradeableCount > 0 ? 'Trade Away' : 'Not Tradeable'}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  sx={{ marginLeft: '1rem' }}
+                  onClick={() => handleTrade('receive')}
+                >
+                  Receive Pin
                 </Button>
                 <Button variant="contained" color="error" onClick={handleDelete} sx={{ marginLeft: '1rem' }}>
                     Delete Pin
                 </Button>
             </Box>
-          </Grid>
-        </Grid>
+            {pin.transactionHistory && pin.transactionHistory.length > 0 && (
+              <Box sx={{ mt: 4 }}>
+                <Typography variant="h6">Transaction History</Typography>
+                <ul>
+                  {pin.transactionHistory.map((t, i) => (
+                    <li key={i}>
+                      {new Date(t.date).toLocaleString()} - {t.description}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            )}
+          </div>
+        </div>
       </Paper>
     </Container>
   );
