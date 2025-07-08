@@ -1,0 +1,38 @@
+import { Pin } from '@/types/pin';
+
+export const mockWishlist: Pin[] = [
+  {
+    id: '101',
+    name: 'Eiffel Tower Commemorative Pin',
+    description: 'A special edition pin celebrating the Eiffel Tower during the Olympics.',
+    photos: ['/pins/eiffel_tower.jpg'],
+    locationFound: 'N/A',
+    category: 'Landmark',
+    countryOfOrigin: 'France',
+    eventOfOrigin: 'Paris 2024 Olympics',
+    value: 9,
+    dateFound: '',
+    timeFound: '',
+    transactionHistory: [],
+    specialCharacteristics: ['Gold Plated'],
+    totalCount: 0,
+    tradeableCount: 0,
+  },
+  {
+    id: '102',
+    name: 'Japan Cherry Blossom Pin',
+    description: 'A beautiful pin representing the Japanese delegation with cherry blossoms.',
+    photos: ['/pins/japan_cherry.jpg'],
+    locationFound: 'N/A',
+    category: 'Team',
+    countryOfOrigin: 'Japan',
+    eventOfOrigin: 'Paris 2024 Olympics',
+    value: 8,
+    dateFound: '',
+    timeFound: '',
+    transactionHistory: [],
+    specialCharacteristics: ['Holographic'],
+    totalCount: 0,
+    tradeableCount: 0,
+  },
+];

@@ -1,0 +1,38 @@
+import { Pin } from '@/types/pin';
+
+export const mockPins: Pin[] = [
+  {
+    id: '1',
+    name: 'Olympic Mascot Pin',
+    description: 'A pin featuring the official mascot of the 2024 Paris Olympics.',
+    photos: ['/pins/olympic_mascot.jpg'],
+    locationFound: 'Eiffel Tower, Paris',
+    category: 'Mascot',
+    countryOfOrigin: 'France',
+    eventOfOrigin: 'Paris 2024 Olympics',
+    value: 8,
+    dateFound: '2024-07-26',
+    timeFound: '10:00',
+    transactionHistory: [],
+    specialCharacteristics: ['Limited Edition'],
+    totalCount: 5,
+    tradeableCount: 4,
+  },
+  {
+    id: '2',
+    name: 'Team USA Eagle Pin',
+    description: 'A pin representing Team USA with a majestic eagle design.',
+    photos: ['/pins/team_usa_eagle.jpg'],
+    locationFound: 'Olympic Village, Paris',
+    category: 'Team',
+    countryOfOrigin: 'USA',
+    eventOfOrigin: 'Paris 2024 Olympics',
+    value: 7,
+    dateFound: '2024-07-27',
+    timeFound: '14:30',
+    transactionHistory: [],
+    specialCharacteristics: ['Glow in the dark'],
+    totalCount: 3,
+    tradeableCount: 2,
+  },
+];
