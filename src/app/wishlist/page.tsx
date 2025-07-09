@@ -4,8 +4,17 @@ import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, Dial
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
 import PinForm from '@/components/PinForm';
+import RequireAuth from '@/components/RequireAuth';
 
 export default function WishlistPage() {
+  return (
+    <RequireAuth>
+      <WishlistPageContent />
+    </RequireAuth>
+  );
+}
+
+function WishlistPageContent() {
   const [wishlist, setWishlist] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -88,7 +97,6 @@ export default function WishlistPage() {
           <Button onClick={handleCloseAddModal}>Cancel</Button>
         </DialogActions>
       </Dialog>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div>
           <TextField

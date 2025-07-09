@@ -5,8 +5,17 @@ import PinForm from '@/components/PinForm';
 import { Pin } from '@/types/pin';
 import { Container, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import RequireAuth from '@/components/RequireAuth';
 
 export default function AddPinPage() {
+  return (
+    <RequireAuth>
+      <AddPinPageContent />
+    </RequireAuth>
+  );
+}
+
+function AddPinPageContent() {
   const router = useRouter();
 
   const handleSubmit = async (pin: Pin) => {

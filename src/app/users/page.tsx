@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Box, Paper, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import RequireAuth from '@/components/RequireAuth';
 import PinCard from '@/components/PinCard';
 import { Pin } from '@/types/pin';
 
@@ -11,6 +12,14 @@ interface User {
 }
 
 export default function UsersPage() {
+  return (
+    <RequireAuth>
+      <UsersPageContent />
+    </RequireAuth>
+  );
+}
+
+function UsersPageContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);

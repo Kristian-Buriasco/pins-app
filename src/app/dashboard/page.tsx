@@ -6,8 +6,17 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } fro
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
 import PinForm from '@/components/PinForm';
+import RequireAuth from '@/components/RequireAuth';
 
 export default function DashboardPage() {
+  return (
+    <RequireAuth>
+      <DashboardPageContent />
+    </RequireAuth>
+  );
+}
+
+function DashboardPageContent() {
   const [pins, setPins] = useState<Pin[]>([]);
   const [wishlist, setWishlist] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
