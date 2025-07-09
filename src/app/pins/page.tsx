@@ -3,10 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { Container, Typography, Box, Snackbar, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
-
 import PinForm from '@/components/PinForm';
+import RequireAuth from '@/components/RequireAuth';
 
 export default function PinsPage() {
+  return (
+    <RequireAuth>
+      <PinsPageContent />
+    </RequireAuth>
+  );
+}
+
+function PinsPageContent() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [PinDraft, setPinDraft] = useState<Pin | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -36,6 +44,7 @@ export default function PinsPage() {
     const fetchPins = async () => {
       try {
         const res = await fetch('/api/pins');
+        if (!res.ok) throw new Error('Failed to load pins');
         const data = await res.json();
         setPins(data);
       } catch {

@@ -3,6 +3,7 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import Link from 'next/link';
+import AuthStatus from "@/components/AuthStatus";
 
 const Navbar = () => {
   return (
@@ -32,6 +33,7 @@ const Navbar = () => {
           <Link href="/users" passHref>
             <Button color="inherit">Users</Button>
           </Link>
+          <AuthStatus />
         </Box>
       </Toolbar>
     </AppBar>

@@ -1,13 +1,25 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Pin from '@/models/Pin';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+import User from '@/models/User';
 
 export async function POST(request: Request) {
   const body = await request.json();
   await dbConnect();
-  // Use insertOne to bypass all validation for POST
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.email) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+  // Find the user's _id
+  const user = await User.findOne({ email: session.user.email });
+  if (!user) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
   try {
-    const result = await Pin.collection.insertOne(body);
+    // Attach userId to the pin
+    const result = await Pin.collection.insertOne({ ...body, userId: user._id });
     const insertedPin = await Pin.findById(result.insertedId);
     if (insertedPin) {
       const pinObj = insertedPin.toObject();
