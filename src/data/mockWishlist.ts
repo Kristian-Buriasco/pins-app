@@ -2,6 +2,7 @@ import { Pin } from '@/types/pin';
 
 export const mockWishlist: Pin[] = [
   {
+    objectId: '101',
     id: '101',
     name: 'Eiffel Tower Commemorative Pin',
     description: 'A special edition pin celebrating the Eiffel Tower during the Olympics.',
@@ -19,6 +20,7 @@ export const mockWishlist: Pin[] = [
     tradeableCount: 0,
   },
   {
+    objectId: '102',
     id: '102',
     name: 'Japan Cherry Blossom Pin',
     description: 'A beautiful pin representing the Japanese delegation with cherry blossoms.',

@@ -1,4 +1,5 @@
 export interface Pin {
+    objectId: string; // MongoDB ObjectId
   id: string;
   name: string;
   description: string;

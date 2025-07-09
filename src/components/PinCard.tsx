@@ -8,8 +8,10 @@ interface PinCardProps {
 }
 
 const PinCard: React.FC<PinCardProps> = ({ pin }) => {
+  // Use _id (from MongoDB) for navigation, fallback to objectId/id for legacy data
+  const pinId = (pin as { _id?: string })._id || pin.objectId || pin.id;
   return (
-    <Link href={`/pins/${pin.id}`} passHref style={{ textDecoration: 'none' }}>
+    <Link href={`/pins/${pinId}`} passHref style={{ textDecoration: 'none' }}>
       <Card>
         <CardMedia
           component="img"

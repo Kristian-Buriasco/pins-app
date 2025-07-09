@@ -2,6 +2,7 @@ import { Pin } from '@/types/pin';
 
 export const mockPins: Pin[] = [
   {
+    objectId: '1',
     id: '1',
     name: 'Olympic Mascot Pin',
     description: 'A pin featuring the official mascot of the 2024 Paris Olympics.',
@@ -19,6 +20,7 @@ export const mockPins: Pin[] = [
     tradeableCount: 4,
   },
   {
+    objectId: '2',
     id: '2',
     name: 'Team USA Eagle Pin',
     description: 'A pin representing Team USA with a majestic eagle design.',

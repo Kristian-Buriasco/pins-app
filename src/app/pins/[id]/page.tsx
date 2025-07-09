@@ -39,7 +39,12 @@ export default function PinDetailPage() {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this pin? This action cannot be undone.')) {
       try {
-        const response = await fetch(`/api/pins/${id}`, {
+        const pinId = (pin && ((pin as { _id?: string })._id || pin.objectId || pin.id)) || '';
+        if (!pinId) {
+          alert('Invalid pin ID');
+          return;
+        }
+        const response = await fetch(`/api/pins/${pinId}`, {
           method: 'DELETE',
         });
         if (response.ok) {
@@ -80,7 +85,12 @@ export default function PinDetailPage() {
       transactionHistory: [...(pin.transactionHistory || []), transaction],
     };
     try {
-      const response = await fetch(`/api/pins/${pin.id}`, {
+      const pinId = (pin && ((pin as { _id?: string })._id || pin.objectId || pin.id)) || '';
+      if (!pinId) {
+        alert('Invalid pin ID');
+        return;
+      }
+      const response = await fetch(`/api/pins/${pinId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedPin),
@@ -164,7 +174,7 @@ export default function PinDetailPage() {
             )}
 
             <Box sx={{ mt: 3 }}>
-                <Button variant="contained" color="primary" onClick={() => router.push(`/pins/${pin.id}/edit`)}>Edit Pin</Button>
+                <Button variant="contained" color="primary" onClick={() => router.push(`/pins/${(pin && ((pin as { _id?: string })._id || pin.objectId || pin.id)) || ''}/edit`)}>Edit Pin</Button>
                 <Button
                   variant="contained"
                   color="secondary"

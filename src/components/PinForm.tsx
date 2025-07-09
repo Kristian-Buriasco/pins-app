@@ -12,7 +12,11 @@ interface PinFormProps {
 
 const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
   const router = useRouter();
-  const [formData, setFormData] = useState<Omit<Pin, 'id' | 'transactionHistory'>>({
+  // Accept _id as an optional prop for MongoDB pins
+  const mongoId = pin && typeof (pin as unknown as { _id?: string })._id === 'string' ? (pin as unknown as { _id?: string })._id as string : '';
+  const [formData, setFormData] = useState<Omit<Pin, 'objectID' | 'transactionHistory'>>({
+    id: mongoId || pin?.objectId || pin?.id || '',
+    objectId: mongoId || pin?.objectId || '',
     name: pin?.name || '',
     description: pin?.description || '',
     photos: pin?.photos || [],
@@ -100,7 +104,8 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
     const tradeableCount = Math.max(0, formData.totalCount - 1);
     const pinToSubmit: Pin = {
       ...formData,
-      id: pin?.id || new Date().toISOString(),
+      id: mongoId || pin?.objectId || pin?.id || '',
+      objectId: mongoId || pin?.objectId || '',
       transactionHistory: pin?.transactionHistory || [],
       tradeableCount,
     };
