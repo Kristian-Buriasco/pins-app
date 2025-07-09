@@ -1,15 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Paper, Box, CircularProgress } from '@mui/material';
+import { Container, Typography, Paper, Box, CircularProgress, Snackbar, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
+import PinForm from '@/components/PinForm';
 
 export default function DashboardPage() {
   const [pins, setPins] = useState<Pin[]>([]);
   const [wishlist, setWishlist] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [wishlistPinDraft, setWishlistPinDraft] = useState<Pin | undefined>(undefined);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +35,41 @@ export default function DashboardPage() {
     };
     fetchData();
   }, []);
+
+  const handleOpenAddModal = () => {
+    setWishlistPinDraft(undefined);
+    setFormError('');
+    setAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => setAddModalOpen(false);
+
+  const handleWishlistFormSubmit = async (pin: Pin) => {
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: pin.name,
+          description: pin.description,
+          image: pin.photos?.[0] || '',
+          category: pin.category,
+          countryOfOrigin: pin.countryOfOrigin,
+          eventOfOrigin: pin.eventOfOrigin,
+        }),
+      });
+      if (res.ok) {
+        const newPin = await res.json();
+        setWishlist(prev => [...prev, { ...pin, id: newPin.id, objectId: newPin.objectId }]);
+        setSnackbar({ open: true, message: 'Wishlist pin added!' });
+        setAddModalOpen(false);
+      } else {
+        setFormError('Failed to add wishlist pin.');
+      }
+    } catch {
+      setFormError('Failed to add wishlist pin.');
+    }
+  };
 
   if (loading) {
     return <Container><Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Box></Container>;
@@ -81,13 +121,43 @@ export default function DashboardPage() {
       <Typography variant="h4" gutterBottom sx={{ marginTop: '2rem' }}>
         My Wishlist
       </Typography>
+      <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleOpenAddModal}>
+        Add Wishlist Pin
+      </Button>
+      <Dialog open={addModalOpen} onClose={handleCloseAddModal} maxWidth="md" fullWidth>
+        <DialogTitle>Add Wishlist Pin</DialogTitle>
+        <DialogContent>
+          <PinForm pin={wishlistPinDraft} onSubmit={handleWishlistFormSubmit} isWishlist={true} />
+          {formError && <Typography color="error">{formError}</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAddModal}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {wishlist.map(pin => (
-          <div key={pin.id}>
+          <div key={pin.id || pin.objectId}>
             <PinCard pin={pin} />
           </div>
         ))}
       </div>
+
+      <Typography variant="h4" gutterBottom sx={{ marginTop: '2rem' }}>
+        All Pins
+      </Typography>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {pins.map(pin => (
+          <div key={pin.id || pin.objectId}>
+            <PinCard pin={pin} />
+          </div>
+        ))}
+      </div>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={2000}
+        onClose={() => setSnackbar({ open: false, message: '' })}
+        message={snackbar.message}
+      />
     </Container>
   );
 }

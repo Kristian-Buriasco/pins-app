@@ -17,11 +17,20 @@ const Navbar = () => {
           <Link href="/" passHref>
             <Button color="inherit">Home</Button>
           </Link>
+          <Link href="/wishlist" passHref>
+            <Button color="inherit">Wishlist</Button>
+          </Link>
+          <Link href="/pins" passHref>
+            <Button color="inherit">Pins</Button>
+          </Link>
           <Link href="/pins/add" passHref>
             <Button color="inherit">Add Pin</Button>
           </Link>
           <Link href="/dashboard" passHref>
             <Button color="inherit">Dashboard</Button>
+          </Link>
+          <Link href="/users" passHref>
+            <Button color="inherit">Users</Button>
           </Link>
         </Box>
       </Toolbar>

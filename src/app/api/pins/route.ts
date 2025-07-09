@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Pin from '@/models/Pin';
 
-export async function GET() {
+export async function GET(request: Request) {
   await dbConnect();
-  const pins = await Pin.find({});
-  // Always return _id as string and as objectId for frontend compatibility
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get('userId');
+  const filter = userId ? { userId } : {};
+  const pins = await Pin.find(filter);
   const pinsWithObjectId = pins.map((pin) => ({
     ...pin.toObject(),
     objectId: pin._id.toString(),

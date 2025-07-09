@@ -8,9 +8,10 @@ import { useRouter } from 'next/navigation';
 interface PinFormProps {
   pin?: Pin;
   onSubmit: (pin: Pin) => void;
+  isWishlist?: boolean;
 }
 
-const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
+const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit, isWishlist }) => {
   const router = useRouter();
   // Accept _id as an optional prop for MongoDB pins
   const mongoId = pin && typeof (pin as unknown as { _id?: string })._id === 'string' ? (pin as unknown as { _id?: string })._id as string : '';
@@ -28,8 +29,8 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
     dateFound: pin?.dateFound || '',
     timeFound: pin?.timeFound || '',
     specialCharacteristics: pin?.specialCharacteristics || [],
-    totalCount: pin?.totalCount || 1,
-    tradeableCount: pin?.tradeableCount || 0,
+    totalCount: isWishlist ? 0 : (pin?.totalCount || 1),
+    tradeableCount: isWishlist ? 0 : (pin?.tradeableCount || 0),
   });
   const [newCharacteristic, setNewCharacteristic] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
@@ -124,24 +125,32 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit }) => {
         <div>
           <TextField name="category" label="Category" value={formData.category} onChange={handleChange} fullWidth />
         </div>
-        <div>
-          <TextField name="locationFound" label="Location Found" value={formData.locationFound} onChange={handleChange} fullWidth />
-        </div>
+        {!isWishlist && (
+          <div>
+            <TextField name="locationFound" label="Location Found" value={formData.locationFound} onChange={handleChange} fullWidth />
+          </div>
+        )}
         <div>
           <TextField name="countryOfOrigin" label="Country of Origin" value={formData.countryOfOrigin} onChange={handleChange} fullWidth />
         </div>
         <div>
           <TextField name="eventOfOrigin" label="Event of Origin" value={formData.eventOfOrigin} onChange={handleChange} fullWidth />
         </div>
-        <div>
-          <TextField name="dateFound" label="Date Found" type="date" value={formData.dateFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
-        </div>
-        <div>
-          <TextField name="timeFound" label="Time Found" type="time" value={formData.timeFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
-        </div>
-        <div>
-          <TextField name="totalCount" label="Total Quantity" type="number" value={formData.totalCount} onChange={handleChange} fullWidth required InputProps={{ inputProps: { min: 1 } }}/>
-        </div>
+        {!isWishlist && (
+          <div>
+            <TextField name="dateFound" label="Date Found" type="date" value={formData.dateFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
+          </div>
+        )}
+        {!isWishlist && (
+          <div>
+            <TextField name="timeFound" label="Time Found" type="time" value={formData.timeFound} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} />
+          </div>
+        )}
+        {!isWishlist && (
+          <div>
+            <TextField name="totalCount" label="Total Quantity" type="number" value={formData.totalCount} onChange={handleChange} fullWidth required InputProps={{ inputProps: { min: 1 } }}/>
+          </div>
+        )}
         <div>
             <Typography gutterBottom>Value ({formData.value})</Typography>
             <Slider
