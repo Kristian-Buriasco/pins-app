@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Pin } from '@/types/pin';
 import { TextField, Button, Slider, Typography, Box, Chip } from '@mui/material';
 import { useRouter } from 'next/navigation';
@@ -210,7 +211,12 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit, isWishlist }) => {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>
             {formData.photos.map(url => (
               <Box key={url} sx={{ position: 'relative', width: 100, height: 100 }}>
-                <img src={url} alt="Pin" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4 }} />
+                <Image
+                  src={url}
+                  alt="Pin"
+                  fill
+                  style={{ objectFit: 'cover', borderRadius: 4 }}
+                />
                 <Button
                   size="small"
                   color="error"

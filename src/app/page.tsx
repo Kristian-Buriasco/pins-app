@@ -3,71 +3,117 @@
 import { useState, useEffect } from 'react';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
-import { Container, TextField, Box, Typography } from '@mui/material';
+import PinForm from '@/components/PinForm';
+import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar } from '@mui/material';
+import RequireAuth from '@/components/RequireAuth';
 
 export default function Home() {
   const [pins, setPins] = useState<Pin[]>([]);
-  const [filteredPins, setFilteredPins] = useState<Pin[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
   const [countryFilter, setCountryFilter] = useState('');
   const [eventFilter, setEventFilter] = useState('');
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [PinDraft, setPinDraft] = useState<Pin | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleCloseAddModal = () => {
+    setAddModalOpen(false);
+    setPinDraft(null);
+    setFormError(null);
+  };
+
+  const handleOpenAddModal = () => {
+    setAddModalOpen(true);
+  };
+
+  const handlePinFormSubmit = () => {
+    // Add logic to handle form submission
+    setAddModalOpen(false);
+    setSnackbar({ open: true, message: 'Pin submitted (not yet saved to backend).' });
+  };
 
   useEffect(() => {
     const fetchPins = async () => {
-      const response = await fetch('/api/pins');
-      const data = await response.json();
-      setPins(data);
-      setFilteredPins(data);
+      try {
+        const res = await fetch('/api/pins');
+        if (!res.ok) throw new Error('Failed to load pins');
+        const data = await res.json();
+        setPins(data);
+      } catch {
+        setSnackbar({ open: true, message: 'Failed to load pins.' });
+      } finally {
+        setLoading(false);
+      }
     };
     fetchPins();
   }, []);
 
-  useEffect(() => {
-    let filtered = pins;
-    if (countryFilter) {
-      filtered = filtered.filter((pin) =>
-        pin.countryOfOrigin.toLowerCase().includes(countryFilter.toLowerCase())
-      );
-    }
-    if (eventFilter) {
-      filtered = filtered.filter((pin) =>
-        pin.eventOfOrigin.toLowerCase().includes(eventFilter.toLowerCase())
-      );
-    }
-    setFilteredPins(filtered);
-  }, [pins, countryFilter, eventFilter]);
+  const filteredPins = pins.filter(pin => {
+    const countryMatch = countryFilter.trim() === '' || (pin.countryOfOrigin || '').toLowerCase().includes(countryFilter.trim().toLowerCase());
+    const eventMatch = eventFilter.trim() === '' || (pin.eventOfOrigin || '').toLowerCase().includes(eventFilter.trim().toLowerCase());
+    return countryMatch && eventMatch;
+  });
 
   return (
-    <Container>
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Pin Collection
-        </Typography>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div>
-            <TextField
-              fullWidth
-              label="Filter by country"
-              value={countryFilter}
-              onChange={(e) => setCountryFilter(e.target.value)}
-            />
-          </div>
-          <div>
-            <TextField
-              fullWidth
-              label="Filter by event"
-              value={eventFilter}
-              onChange={(e) => setEventFilter(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {filteredPins.map((pin) => (
-            <div key={pin.id}>
-              <PinCard pin={pin} />
+    <RequireAuth>
+      <Container>
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Pin Collection
+          </Typography>
+          <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={handleOpenAddModal}>
+            Add Pin
+          </Button>
+          <Dialog open={addModalOpen} onClose={handleCloseAddModal} maxWidth="md" fullWidth>
+            <DialogTitle>Add Pin</DialogTitle>
+            <DialogContent>
+              <PinForm pin={PinDraft || undefined} onSubmit={handlePinFormSubmit} isWishlist={false} />
+              {formError && <Typography color="error">{formError}</Typography>}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseAddModal}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div>
+              <TextField
+                fullWidth
+                label="Filter by country"
+                value={countryFilter}
+                onChange={(e) => setCountryFilter(e.target.value)}
+              />
             </div>
-          ))}
-        </div>
-      </Box>
-    </Container>
+            <div>
+              <TextField
+                fullWidth
+                label="Filter by event"
+                value={eventFilter}
+                onChange={(e) => setEventFilter(e.target.value)}
+              />
+            </div>
+          </div>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Typography>Loading...</Typography>
+            </Box>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              {filteredPins.map((pin) => (
+                <div key={pin.id || pin.objectId}>
+                  <PinCard pin={pin} />
+                </div>
+              ))}
+            </div>
+          )}
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={2000}
+            onClose={() => setSnackbar({ open: false, message: '' })}
+            message={snackbar.message}
+          />
+        </Box>
+      </Container>
+    </RequireAuth>
   );
 }

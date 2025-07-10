@@ -7,7 +7,13 @@ export default function SignInPage() {
     <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Box display="flex" flexDirection="column" alignItems="center" gap={4}>
         <Typography variant="h4" gutterBottom>Sign In</Typography>
-        <Button variant="contained" color="primary" onClick={() => signIn("google")}>Sign in with Google</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => signIn("google", { callbackUrl: "/" })}
+        >
+          Sign in with Google
+        </Button>
       </Box>
     </Container>
   );

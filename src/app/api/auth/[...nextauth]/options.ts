@@ -17,4 +17,8 @@ export const authOptions = {
   pages: {
     signIn: '/auth/signin',
   },
+  // Set the correct domain when running on CapRover
+  ...(process.env.CAPROVER === '1' && {
+    baseUrl: 'https://pins-app.caprover.kristianburiasco.it',
+  }),
 };
