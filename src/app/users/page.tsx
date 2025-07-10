@@ -90,12 +90,12 @@ function UsersPageContent() {
               <CircularProgress />
             </Box>
           ) : (
-            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" sx={{ mt: 2 }}>
+            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-8 justify-items-center" sx={{ mt: 2, mb: 2 }}>
               {userPins.length === 0 ? (
                 <Typography>No pins found for this user.</Typography>
               ) : (
                 userPins.map(pin => (
-                  <div key={pin.id || pin.objectId}>
+                  <div key={pin.id || pin.objectId} className="w-full max-w-xs">
                     <PinCard pin={pin} />
                   </div>
                 ))

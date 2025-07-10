@@ -3,20 +3,25 @@ import dbConnect from '@/lib/dbConnect';
 import Pin from '@/models/Pin';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/options';
-import User from '@/models/User';
 
-export async function GET() {
+
+export async function GET(request: Request) {
   await dbConnect();
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get('userId');
   const session = await getServerSession(authOptions);
   if (!session || !session.user?.email) {
     return NextResponse.json([], { status: 401 });
   }
-  // Find the user's _id
-  const user = await User.findOne({ email: session.user.email });
-  if (!user) {
-    return NextResponse.json([], { status: 401 });
+
+  let pins;
+  if (userId) {
+    // If userId is provided, show only that user's pins
+    pins = await Pin.find({ userId });
+  } else {
+    // Otherwise, show all pins
+    pins = await Pin.find({});
   }
-  const pins = await Pin.find({ userId: user._id });
   const pinsWithObjectId = pins.map((pin) => ({
     ...pin.toObject(),
     objectId: pin._id.toString(),
