@@ -7,7 +7,19 @@ import PinForm from '@/components/PinForm';
 import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Autocomplete, Slider } from '@mui/material';
 import RequireAuth from '@/components/RequireAuth';
 
+
 export default function Home() {
+
+
+  // PWA install prompt state
+  // Define BeforeInstallPromptEvent type
+  type BeforeInstallPromptEvent = Event & {
+    prompt: () => void;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  };
+  
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showPwaPopup, setShowPwaPopup] = useState(false);
 
   const [pins, setPins] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +47,17 @@ export default function Home() {
     setAddModalOpen(false);
     setSnackbar({ open: true, message: 'Pin submitted (not yet saved to backend).' });
   };
+
+  useEffect(() => {
+    // Listen for PWA install prompt
+    const handler = (e: BeforeInstallPromptEvent) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowPwaPopup(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler as EventListener);
+    return () => window.removeEventListener('beforeinstallprompt', handler as EventListener);
+  }, []);
 
   useEffect(() => {
     const fetchPins = async () => {
@@ -92,6 +115,46 @@ export default function Home() {
               <Button onClick={handleCloseAddModal}>Cancel</Button>
             </DialogActions>
           </Dialog>
+
+          {/* PWA Install Popup */}
+          {showPwaPopup && (
+            <Box sx={{
+              position: 'fixed',
+              bottom: 32,
+              left: 0,
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              zIndex: 2000,
+            }}>
+              <Box sx={{
+                bgcolor: 'background.paper',
+                boxShadow: 3,
+                borderRadius: 3,
+                px: 3,
+                py: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+              }}>
+                <Typography variant="body1">Install this app for the best experience!</Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={async () => {
+                    if (deferredPrompt) {
+                      deferredPrompt.prompt();
+                      const { outcome } = await deferredPrompt.userChoice;
+                      if (outcome === 'accepted') setShowPwaPopup(false);
+                    }
+                  }}
+                >
+                  Add to Home Screen
+                </Button>
+                <Button onClick={() => setShowPwaPopup(false)} size="small">Dismiss</Button>
+              </Box>
+            </Box>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div>
               <Autocomplete

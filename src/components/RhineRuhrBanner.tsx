@@ -6,8 +6,11 @@ export default function RhineRuhrBanner() {
   if (!session) return null;
   return (
     <div
-      className="fixed bottom-0 left-0 w-full z-[2000] flex justify-center pointer-events-none"
-      style={{ pointerEvents: 'none' }}
+      className="fixed left-0 w-full z-[2000] flex justify-center pointer-events-none"
+      style={{
+        pointerEvents: 'none',
+        bottom: 0,
+      }}
     >
       <a
         href="/rhineruhr2025"

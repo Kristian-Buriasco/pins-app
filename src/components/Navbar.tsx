@@ -118,7 +118,16 @@ const Navbar = () => {
       </div>
       {/* Floating Action Button at the bottom right, only if logged in */}
       {session && (
-        <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1300 }}>
+        <Box
+          sx={{
+            position: 'fixed',
+            right: 24,
+            zIndex: 1300,
+            // Place FAB above the RhineRuhrBanner (which is at bottom: 0)
+            bottom: { xs: 80, sm: 40 },
+            // On mobile, 80px above bottom; on desktop, 40px
+          }}
+        >
           <Fab
             ref={fabButtonRef}
             color="primary"
