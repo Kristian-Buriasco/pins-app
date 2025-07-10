@@ -22,10 +22,15 @@ const Navbar = () => {
     router.push('/pins/add');
   };
 
-  // Handle long press
+
+  // Handle long press (fix: use ref to store timer, and handle both mouse and touch events robustly)
+  const fabButtonRef = React.useRef<HTMLButtonElement | null>(null);
+
   const handleFabMouseDown = (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => {
+    // For touch events, event.currentTarget is not always reliable, so use a ref
+    const target = fabButtonRef.current || event.currentTarget;
     const timer = setTimeout(() => {
-      setAnchorEl(event.currentTarget);
+      setAnchorEl(target);
     }, 500);
     setLongPressTimer(timer);
   };
@@ -54,6 +59,9 @@ const Navbar = () => {
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
+  // Mobile menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <nav className="w-full bg-white dark:bg-neutral-900 shadow rounded-b-xl px-4 py-2 flex items-center sticky top-0 z-40 transition-colors">
       {/* Left: Logo/Brand */}
@@ -76,19 +84,43 @@ const Navbar = () => {
             <Link href="/users" className="px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors">Users</Link>
           </li>
         </ul>
+        {/* Hamburger Icon for mobile */}
+        <button
+          className="md:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
+          aria-label="Open menu"
+          onClick={() => setMobileMenuOpen(true)}
+        >
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-800 dark:text-white"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-end">
+            <div className="w-64 bg-white dark:bg-neutral-900 h-full shadow-lg flex flex-col p-6">
+              <button
+                className="self-end mb-4 p-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800"
+                aria-label="Close menu"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-800 dark:text-white"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <nav className="flex flex-col gap-4">
+                <button className="text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-base font-medium" onClick={() => {router.push('/'); setMobileMenuOpen(false);}}>Home</button>
+                <button className="text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-base font-medium" onClick={() => {router.push('/wishlist'); setMobileMenuOpen(false);}}>Wishlist</button>
+                <button className="text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-base font-medium" onClick={() => {router.push('/dashboard'); setMobileMenuOpen(false);}}>Dashboard</button>
+                <button className="text-left px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors text-base font-medium" onClick={() => {router.push('/users'); setMobileMenuOpen(false);}}>Users</button>
+              </nav>
+            </div>
+          </div>
+        )}
       </div>
       {/* Right: AuthStatus and mobile menu */}
       <div className="flex items-center gap-3 min-w-max">
         <AuthStatus />
-        {/* Mobile menu button (optional) */}
-        {/* <button className="md:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-neutral-800">
-          <span className="icon-[tabler--menu-2] size-5"></span>
-        </button> */}
       </div>
       {/* Floating Action Button at the bottom right, only if logged in */}
       {session && (
         <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1300 }}>
           <Fab
+            ref={fabButtonRef}
             color="primary"
             aria-label="add"
             onClick={handleFabClick}
@@ -97,9 +129,10 @@ const Navbar = () => {
             onMouseLeave={handleFabMouseUp}
             onTouchStart={handleFabMouseDown}
             onTouchEnd={handleFabMouseUp}
+            onTouchCancel={handleFabMouseUp}
             onContextMenu={(e) => {
               e.preventDefault();
-              setAnchorEl(e.currentTarget);
+              setAnchorEl(fabButtonRef.current || e.currentTarget);
             }}
           >
             <AddIcon />

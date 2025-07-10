@@ -24,6 +24,20 @@ export default function RootLayout({
           <ThemeProvider>
             <Navbar />
             {children}
+            {/* Bottom Banner for Rhine-Ruhr 2025 FISU Games */}
+            <div
+              className="fixed bottom-0 left-0 w-full z-[2000] flex justify-center pointer-events-none"
+              style={{ pointerEvents: 'none' }}
+            >
+              <a
+                href="/rhineruhr2025"
+                className="m-4 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-green-400 text-white font-semibold shadow-lg text-lg transition-transform hover:scale-105 pointer-events-auto"
+                style={{ pointerEvents: 'auto' }}
+                tabIndex={0}
+              >
+                🌟 See all Rhine-Ruhr 2025 FISU Games Pins!
+              </a>
+            </div>
           </ThemeProvider>
         </AuthProvider>
       </body>

@@ -11,25 +11,35 @@ const PinCard: React.FC<PinCardProps> = ({ pin }) => {
   // Use _id (from MongoDB) for navigation, fallback to objectId/id for legacy data
   const pinId = (pin as { _id?: string })._id || pin.objectId || pin.id;
   return (
-    <div style={{ position: 'relative' }}>
+    <div
+      style={{ position: 'relative' }}
+      className="sm:!w-auto w-full max-w-xs mx-auto"
+    >
       <Link href={`/pins/${pinId}`} passHref style={{ textDecoration: 'none' }}>
-        <Card>
+        <Card
+          className="transition-all"
+          sx={{
+            width: { xs: 220, sm: 300 },
+            minWidth: { xs: 180, sm: 250 },
+            mx: 'auto',
+          }}
+        >
           <CardMedia
             component="img"
-            height="140"
+            sx={{ height: { xs: 100, sm: 140 } }}
             image={pin.photos[0] || '/placeholder.png'}
             alt={pin.name}
           />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
+          <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+            <Typography gutterBottom variant="h6" component="div" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               {pin.name}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.85rem', sm: '1rem' } }}>
               {pin.description}
             </Typography>
-            <Chip label={pin.category} />
-            <Chip label={pin.countryOfOrigin} />
-            <Chip label={pin.eventOfOrigin} />
+            <Chip label={pin.category} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
+            <Chip label={pin.countryOfOrigin} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
+            <Chip label={pin.eventOfOrigin} size="small" sx={{ mr: 0.5, mt: 0.5 }} />
           </CardContent>
         </Card>
       </Link>

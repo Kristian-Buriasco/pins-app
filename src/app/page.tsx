@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
 import PinForm from '@/components/PinForm';
-import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar } from '@mui/material';
+import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Autocomplete } from '@mui/material';
 import RequireAuth from '@/components/RequireAuth';
 
 export default function Home() {
@@ -49,6 +49,10 @@ export default function Home() {
     fetchPins();
   }, []);
 
+  // Get unique country and event options for autocomplete
+  const countryOptions = Array.from(new Set(pins.map(pin => pin.countryOfOrigin).filter(Boolean))).sort();
+  const eventOptions = Array.from(new Set(pins.map(pin => pin.eventOfOrigin).filter(Boolean))).sort();
+
   const filteredPins = pins.filter(pin => {
     const countryMatch = countryFilter.trim() === '' || (pin.countryOfOrigin || '').toLowerCase().includes(countryFilter.trim().toLowerCase());
     const eventMatch = eventFilter.trim() === '' || (pin.eventOfOrigin || '').toLowerCase().includes(eventFilter.trim().toLowerCase());
@@ -77,19 +81,25 @@ export default function Home() {
           </Dialog>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div>
-              <TextField
-                fullWidth
-                label="Filter by country"
+              <Autocomplete
+                freeSolo
+                options={countryOptions}
                 value={countryFilter}
-                onChange={(e) => setCountryFilter(e.target.value)}
+                onInputChange={(_, newValue) => setCountryFilter(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} label="Filter by country" fullWidth />
+                )}
               />
             </div>
             <div>
-              <TextField
-                fullWidth
-                label="Filter by event"
+              <Autocomplete
+                freeSolo
+                options={eventOptions}
                 value={eventFilter}
-                onChange={(e) => setEventFilter(e.target.value)}
+                onInputChange={(_, newValue) => setEventFilter(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} label="Filter by event" fullWidth />
+                )}
               />
             </div>
           </div>
