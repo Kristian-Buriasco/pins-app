@@ -26,13 +26,55 @@ export default function RhineRuhr2025Page() {
     };
     fetchPins();
   }, []);
-
-  // Filter pins for Rhine-Ruhr 2025 FISU Games
-  const filteredPins = pins.filter(
-    pin => (pin.eventOfOrigin || '').toLowerCase().includes('rhineruhr2025') ||
-           (pin.eventOfOrigin || '').toLowerCase().includes('rhine ruhr 2025') ||
-           (pin.eventOfOrigin || '').toLowerCase().includes('fisu games')
-  );
+const eventKeywords = [
+  "rhineruhr2025",
+  "rhine-ruhr 2025",
+  "rhine ruhr 2025",
+  "rhine ruhr games 2025",
+  "rhine-ruhr games 2025",
+  "rhine ruhr fisu",
+  "rhine-ruhr fisu",
+  "fisu rhine ruhr",
+  "fisu rhine-ruhr",
+  "fisu 2025 rhine ruhr",
+  "fisu 2025 rhine-ruhr",
+  "fisu world university games",
+  "fisu world university games 2025",
+  "fisu games 2025",
+  "fisu 2025",
+  "fisu games",
+  "fisu",
+  "wug 2025",
+  "wug rhine ruhr",
+  "wug rhine-ruhr",
+  "wug germany 2025",
+  "world university games",
+  "world university games 2025",
+  "2025 university games",
+  "2025 universiade",
+  "universiade 2025",
+  "universiade rhine ruhr",
+  "universiade rhine-ruhr",
+  "universiade germany",
+  "universiadi",
+  "universiadi 2025",
+  "german universiade",
+  "germany university games",
+  "germany fisu games",
+  "germany 2025 university games",
+  "university sports games",
+  "university sports",
+  "games of the universities",
+  "2025 university sports",
+  "ruhr games",
+  "rhine ruhr uni games",
+  "rr2025",
+  "rr fisu"
+];
+const filteredPins = pins.filter(pin => {
+  const origin = (pin.eventOfOrigin || '').toLowerCase();
+  return eventKeywords.some(keyword => origin.includes(keyword));
+});
 
   return (
     <RequireAuth>
