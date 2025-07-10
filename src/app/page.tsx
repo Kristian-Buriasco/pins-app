@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
 import PinForm from '@/components/PinForm';
-import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Autocomplete, Slider } from '@mui/material';
+import { Container, TextField, Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Autocomplete, Slider, Collapse, IconButton } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import RequireAuth from '@/components/RequireAuth';
 
 
 export default function Home() {
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
 
   // PWA install prompt state
@@ -155,55 +157,66 @@ export default function Home() {
               </Box>
             </Box>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div>
-              <Autocomplete
-                freeSolo
-                options={countryOptions}
-                value={countryFilter}
-                onInputChange={(_, newValue) => setCountryFilter(newValue)}
-                renderInput={(params) => (
-                  <TextField {...params} label="Filter by country" fullWidth />
-                )}
-              />
-            </div>
-            <div>
-              <Autocomplete
-                freeSolo
-                options={eventOptions}
-                value={eventFilter}
-                onInputChange={(_, newValue) => setEventFilter(newValue)}
-                renderInput={(params) => (
-                  <TextField {...params} label="Filter by event" fullWidth />
-                )}
-              />
-            </div>
-            <div>
-              <Box sx={{ px: 1 }}>
-                <Typography gutterBottom>Value Range</Typography>
-                <Slider
-                  value={valueRange}
-                  onChange={(_, newValue) => setValueRange(newValue as [number, number])}
-                  valueLabelDisplay="auto"
-                  min={1}
-                  max={10}
-                  step={1}
+          {/* Search bar always visible */}
+          <Box className="mb-4">
+            <TextField
+              fullWidth
+              label="Search pins"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton onClick={() => setFiltersOpen((v) => !v)} aria-label="Show filters">
+                    <FilterListIcon color={filtersOpen ? 'primary' : 'inherit'} />
+                  </IconButton>
+                ),
+              }}
+            />
+          </Box>
+          {/* Expandable filters */}
+          <Collapse in={filtersOpen}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div>
+                <Autocomplete
+                  freeSolo
+                  options={countryOptions}
+                  value={countryFilter}
+                  onInputChange={(_, newValue) => setCountryFilter(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Filter by country" fullWidth />
+                  )}
                 />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                  <span>{valueRange[0]}</span>
-                  <span>{valueRange[1]}</span>
+              </div>
+              <div>
+                <Autocomplete
+                  freeSolo
+                  options={eventOptions}
+                  value={eventFilter}
+                  onInputChange={(_, newValue) => setEventFilter(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Filter by event" fullWidth />
+                  )}
+                />
+              </div>
+              <div>
+                <Box sx={{ px: 1 }}>
+                  <Typography gutterBottom>Value Range</Typography>
+                  <Slider
+                    value={valueRange}
+                    onChange={(_, newValue) => setValueRange(newValue as [number, number])}
+                    valueLabelDisplay="auto"
+                    min={1}
+                    max={10}
+                    step={1}
+                  />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                    <span>{valueRange[0]}</span>
+                    <span>{valueRange[1]}</span>
+                  </Box>
                 </Box>
-              </Box>
+              </div>
             </div>
-            <div>
-              <TextField
-                fullWidth
-                label="Search pins"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-          </div>
+          </Collapse>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Typography>Loading...</Typography>

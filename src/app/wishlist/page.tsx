@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Box, TextField, Slider } from '@mui/material';
+import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Box, TextField, Slider, Collapse, IconButton } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { Pin } from '@/types/pin';
 import PinCard from '@/components/PinCard';
 import PinForm from '@/components/PinForm';
@@ -14,6 +15,7 @@ export default function WishlistPage() {
   );
 }
 function WishlistPageContent() {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [wishlist, setWishlist] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -107,49 +109,60 @@ function WishlistPageContent() {
           <Button onClick={handleCloseAddModal}>Cancel</Button>
         </DialogActions>
       </Dialog>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div>
-          <TextField
-            fullWidth
-            label="Filter by country"
-            value={countryFilter}
-            onChange={(e) => setCountryFilter(e.target.value)}
-          />
-        </div>
-        <div>
-          <TextField
-            fullWidth
-            label="Filter by event"
-            value={eventFilter}
-            onChange={(e) => setEventFilter(e.target.value)}
-          />
-        </div>
-        <div>
-          <Box sx={{ px: 1 }}>
-            <Typography gutterBottom>Value Range</Typography>
-            <Slider
-              value={valueRange}
-              onChange={(_, newValue) => setValueRange(newValue as [number, number])}
-              valueLabelDisplay="auto"
-              min={1}
-              max={10}
-              step={1}
+      {/* Search bar always visible */}
+      <Box className="mb-4">
+        <TextField
+          fullWidth
+          label="Search wishlist"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <IconButton onClick={() => setFiltersOpen((v) => !v)} aria-label="Show filters">
+                <FilterListIcon color={filtersOpen ? 'primary' : 'inherit'} />
+              </IconButton>
+            ),
+          }}
+        />
+      </Box>
+      {/* Expandable filters */}
+      <Collapse in={filtersOpen}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div>
+            <TextField
+              fullWidth
+              label="Filter by country"
+              value={countryFilter}
+              onChange={(e) => setCountryFilter(e.target.value)}
             />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-              <span>{valueRange[0]}</span>
-              <span>{valueRange[1]}</span>
+          </div>
+          <div>
+            <TextField
+              fullWidth
+              label="Filter by event"
+              value={eventFilter}
+              onChange={(e) => setEventFilter(e.target.value)}
+            />
+          </div>
+          <div>
+            <Box sx={{ px: 1 }}>
+              <Typography gutterBottom>Value Range</Typography>
+              <Slider
+                value={valueRange}
+                onChange={(_, newValue) => setValueRange(newValue as [number, number])}
+                valueLabelDisplay="auto"
+                min={1}
+                max={10}
+                step={1}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                <span>{valueRange[0]}</span>
+                <span>{valueRange[1]}</span>
+              </Box>
             </Box>
-          </Box>
+          </div>
         </div>
-        <div>
-          <TextField
-            fullWidth
-            label="Search wishlist"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+      </Collapse>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <Typography>Loading...</Typography>
