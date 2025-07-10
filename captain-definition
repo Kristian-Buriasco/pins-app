@@ -7,7 +7,6 @@
     "ARG NEXTAUTH_URL",
     "ARG MONGODB_URI",
     "ARG NEXTAUTH_SECRET",
-    // Environment variables are passed as build args and can be set in CapRover dashboard
     "COPY . .",
     "RUN npm install",
     "RUN npm run build",
