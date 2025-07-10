@@ -1,18 +1,15 @@
-import type { NextConfig } from "next";
-import withPWA from "next-pwa";
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+});
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ["lh3.googleusercontent.com"],
   },
 };
 
-export default withPWA({
-  ...nextConfig,
-  pwa: {
-    dest: "public",
-    register: true,
-    skipWaiting: true,
-  },
-});
+module.exports = withPWA(nextConfig);
