@@ -6,6 +6,7 @@ export interface Pin {
   photos: string[];
   locationFound: string;
   category: string;
+  type: string;
   countryOfOrigin: string;
   eventOfOrigin: string;
   value: number; // 1-10

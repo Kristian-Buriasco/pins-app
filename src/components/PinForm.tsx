@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Pin } from '@/types/pin';
-import { TextField, Button, Slider, Typography, Box, Chip } from '@mui/material';
+import { TextField, Button, Slider, Typography, Box, Chip, Autocomplete } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
 interface PinFormProps {
@@ -32,10 +32,39 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit, isWishlist }) => {
     specialCharacteristics: pin?.specialCharacteristics || [],
     totalCount: isWishlist ? 0 : (pin?.totalCount || 1),
     tradeableCount: isWishlist ? 0 : (pin?.tradeableCount || 0),
+    type: pin?.type || '',
   });
   const [newCharacteristic, setNewCharacteristic] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [countryOptions, setCountryOptions] = useState<string[]>(["France", "Italy", "USA", "Germany", "Japan", "UK", "Canada", "China", "Australia", "Spain", "Brazil"]);
+  const [eventOptions, setEventOptions] = useState<string[]>(["Olympics", "Paralympics", "World Cup", "Universiade", "WUG Turin 2025", "Paris 2024 Olympics", "Rhine-Ruhr 2025 FISU Games", "Tokyo 2020", "Beijing 2022", "Other"]);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [locationOptions, setLocationOptions] = useState<string[]>([]);
+  const [typeOptions, setTypeOptions] = useState<string[]>(["Badge", "Plastic", "Enamel", "Other"]);
+
+  useEffect(() => {
+    // Fetch unique countries and events from API
+    fetch('/api/pins/meta')
+      .then(res => res.ok ? res.json() : { countries: [], events: [] })
+      .then(data => {
+        if (Array.isArray(data.countries)) {
+          setCountryOptions(prev => Array.from(new Set([...prev, ...data.countries.filter(Boolean)])));
+        }
+        if (Array.isArray(data.events)) {
+          setEventOptions(prev => Array.from(new Set([...prev, ...data.events.filter(Boolean)])));
+        }
+        if (Array.isArray(data.categories)) {
+          setCategoryOptions(prev => Array.from(new Set([...prev, ...data.categories.filter(Boolean)])));
+        }
+        if (Array.isArray(data.locations)) {
+          setLocationOptions(prev => Array.from(new Set([...prev, ...data.locations.filter(Boolean)])));
+        }
+        if (Array.isArray(data.types)) {
+          setTypeOptions(prev => Array.from(new Set([...prev, ...data.types.filter(Boolean)])));
+        }
+      });
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -124,18 +153,50 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit, isWishlist }) => {
           <TextField name="description" label="Description" value={formData.description} onChange={handleChange} fullWidth multiline rows={4} />
         </div>
         <div>
-          <TextField name="category" label="Category" value={formData.category} onChange={handleChange} fullWidth />
+          <Autocomplete
+            freeSolo
+            options={categoryOptions}
+            value={formData.category}
+            onInputChange={(_, newValue) => setFormData(prev => ({ ...prev, category: newValue }))}
+            renderInput={(params) => (
+              <TextField {...params} name="category" label="Category" fullWidth />
+            )}
+          />
         </div>
         {!isWishlist && (
           <div>
-            <TextField name="locationFound" label="Location Found" value={formData.locationFound} onChange={handleChange} fullWidth />
+            <Autocomplete
+              freeSolo
+              options={locationOptions}
+              value={formData.locationFound}
+              onInputChange={(_, newValue) => setFormData(prev => ({ ...prev, locationFound: newValue }))}
+              renderInput={(params) => (
+                <TextField {...params} name="locationFound" label="Location Found" fullWidth />
+              )}
+            />
           </div>
         )}
         <div>
-          <TextField name="countryOfOrigin" label="Country of Origin" value={formData.countryOfOrigin} onChange={handleChange} fullWidth />
+          <Autocomplete
+            freeSolo
+            options={countryOptions}
+            value={formData.countryOfOrigin}
+            onInputChange={(_, newValue) => setFormData(prev => ({ ...prev, countryOfOrigin: newValue }))}
+            renderInput={(params) => (
+              <TextField {...params} name="countryOfOrigin" label="Country of Origin" fullWidth />
+            )}
+          />
         </div>
         <div>
-          <TextField name="eventOfOrigin" label="Event of Origin" value={formData.eventOfOrigin} onChange={handleChange} fullWidth />
+          <Autocomplete
+            freeSolo
+            options={eventOptions}
+            value={formData.eventOfOrigin}
+            onInputChange={(_, newValue) => setFormData(prev => ({ ...prev, eventOfOrigin: newValue }))}
+            renderInput={(params) => (
+              <TextField {...params} name="eventOfOrigin" label="Event of Origin" fullWidth />
+            )}
+          />
         </div>
         {!isWishlist && (
           <div>
@@ -164,6 +225,17 @@ const PinForm: React.FC<PinFormProps> = ({ pin, onSubmit, isWishlist }) => {
                 min={1}
                 max={10}
             />
+        </div>
+        <div className="col-span-1 md:col-span-2">
+          <Autocomplete
+            freeSolo
+            options={typeOptions}
+            value={formData.type || ''}
+            onInputChange={(_, newValue) => setFormData(prev => ({ ...prev, type: newValue }))}
+            renderInput={(params) => (
+              <TextField {...params} name="type" label="Type" fullWidth />
+            )}
+          />
         </div>
         <div className="col-span-1 md:col-span-2">
             <Typography gutterBottom>Special Characteristics</Typography>
