@@ -63,12 +63,9 @@ export async function PUT(request: Request) {
       ) {
         let notificationMessage = '';
         let base64_attachments: string[] = [];
-        // Attach the first pin image if available and it's a base64 data URL
-        if (result.value.photos && result.value.photos.length > 0) {
-          const firstPhoto = result.value.photos[0];
-          if (firstPhoto.startsWith('data:image/')) {
-            base64_attachments = [firstPhoto];
-          }
+        // Attach all pin images that are base64 data URLs
+        if (result.value.photos && Array.isArray(result.value.photos)) {
+          base64_attachments = result.value.photos.filter((photo: string) => photo.startsWith('data:image/'));
         }
         if (prevPin.totalCount > 3 && result.value.totalCount === 3) {
           notificationMessage = `Low stock warning: ${result.value.name || result.value.title || 'Untitled Pin'} has only 3 left.`;
@@ -79,17 +76,24 @@ export async function PUT(request: Request) {
         }
         if (notificationMessage) {
           try {
-            await fetch('https://signal-cli-rest-api.caprover.kristianburiasco.it/v2/send', {
+            console.log('Sending notification:', notificationMessage);
+            console.log('Base64 attachments:', base64_attachments);
+            const response = await fetch('https://signal-cli-rest-api.caprover.kristianburiasco.it/v2/send', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 message: notificationMessage,
                 number: '+393773042577',
-                recipients: ['+393773042577'],
+                recipients: ['+393773042577'], 
                 notify_self: true,
                 base64_attachments
               })
             });
+            if (!response.ok) {
+              console.error('Failed to send notification:', await response.text());
+            } else {
+              console.log('Notification sent successfully');
+            }
           } catch {
             // Ignore notification errors
           }
